@@ -1,8 +1,33 @@
 version: 2.1
-jobs:
-  build:
+executors:
+  docker-executor:
     docker:
-      - image: circleci/python:3.6.1
+      - image: circleci/python:3.7
+
+jobs:
+  build_and_push:
+    executor: docker-executor
     steps:
+      - setup_remote_docker:
+          version: 20.10.7
+          docker_layer_caching: true
       - checkout
-      - run: echo "Hello, DERP!"
+      - run:
+          name: Install AWS CLI
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+      - run:
+          name: Build and push Docker image
+          command: |
+            echo "${AWS_SECRET_ACCESS_KEY}" | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+            docker build -t ${ECR_REPOSITORY}:latest .
+            docker tag ${ECR_REPOSITORY}:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:latest
+            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:latest
+
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+      - build_and_push
