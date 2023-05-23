@@ -13,9 +13,6 @@ jobs:
             unzip awscliv2.zip
             sudo ./aws/install
       - run:
-          name: Build and push to ECR
-          command: |
-            $(aws ecr get-login --region ${AWS_REGION} --no-include-email)
-            docker build -t ${ECR_REPOSITORY} .
-            docker tag ${ECR_REPOSITORY}:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:latest
-            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:latest
+           name: Authenticate Docker to AWS ECR
+	   command: aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+	   docker pull ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:main
