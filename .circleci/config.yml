@@ -25,9 +25,8 @@ jobs:
             docker build -t ${ECR_REPOSITORY}:main .
             docker tag ${ECR_REPOSITORY}:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:main
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:main
-
 workflows:
-version: 2
-build-deploy:
-jobs:
-- build_and_push
+  version: 2
+  build-deploy:
+    jobs:
+      - build_and_push
