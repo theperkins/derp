@@ -21,7 +21,7 @@ jobs:
       - run:
           name: Build and push Docker image
           command: |
-            (Get-ECRLoginCommand).Password | docker login --username AWS --password-stdin 691592260817.dkr.ecr.us-west-2.amazonaws.com
+            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin 691592260817.dkr.ecr.us-west-2.amazonaws.com
             docker build -t ${ECR_REPOSITORY}:main .
             docker tag ${ECR_REPOSITORY}:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:main
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:main
